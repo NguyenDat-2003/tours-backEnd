@@ -1,0 +1,10 @@
+/**
+ * Updated by DatDev
+ */
+{
+  "compilerOptions": {
+    "paths": {
+      "~/*": ["./src/*"]
+    }
+  }
+}

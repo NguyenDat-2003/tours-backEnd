@@ -1,11 +1,14 @@
-const express = require('express')
+import express from 'express'
+
 const app = express()
+
+const hostname = 'localhost'
 const port = 8080
 
 app.get('/', (req, res) => {
-  res.send('Hello World!')
+  res.end('<h1>Hello World!</h1><hr>')
 })
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
+app.listen(port, hostname, () => {
+  console.log(`Hello Dat Dev, I am running at ${hostname}:${port}/`)
 })
