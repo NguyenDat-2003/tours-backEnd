@@ -1,12 +1,9 @@
 import { MongoClient, ServerApiVersion } from 'mongodb'
-
-const MONGODB_URI = 'mongodb+srv://datdev:ok34BX1bvvhQrHmx@cluster-datdev.w1qqpiq.mongodb.net/?retryWrites=true&w=majority&appName=Cluster-DatDev'
-
-const DATABASE_NAME = 'tours-app-datdev'
+import { env } from '~/config/environment'
 
 let toursDatabaseInstance = null
 
-const mongoClientInstance = new MongoClient(MONGODB_URI, {
+const mongoClientInstance = new MongoClient(env.MONGODB_URI, {
   serverApi: {
     version: ServerApiVersion.v1,
     strict: true,
@@ -17,7 +14,7 @@ const mongoClientInstance = new MongoClient(MONGODB_URI, {
 export const CONNECT_DB = async () => {
   await mongoClientInstance.connect()
 
-  toursDatabaseInstance = mongoClientInstance.db(DATABASE_NAME)
+  toursDatabaseInstance = mongoClientInstance.db(env.DATABASE_NAME)
 }
 
 export const GET_DB = () => {
