@@ -1,7 +1,7 @@
-/* eslint-disable no-useless-catch */
+import { tourModel } from '~/models/tourModel'
 import slugify from '~/utils/slugify'
 
-const creatNew = async (reqBody) => {
+const createNew = async (reqBody) => {
   try {
     // Xử lý logic tùy dự án
     const newTour = {
@@ -9,11 +9,10 @@ const creatNew = async (reqBody) => {
       slug: slugify(reqBody.name)
     }
 
-    // Gọi đến tầng model để xử lý lưu bản ghi vào database
-    return newTour
+    // Gọi đến tầng model để xử lý lưu bản ghi vào database sau đó trả data về cho controller
   } catch (error) {
-    throw error
+    throw new Error(error)
   }
 }
 
-export const tourService = { creatNew }
+export const tourService = { createNew }
