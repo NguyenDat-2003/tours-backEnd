@@ -1,13 +1,14 @@
 import { StatusCodes } from 'http-status-codes'
 import { tourService } from '~/services/tourService'
 
-const creatNew = async (req, res, next) => {
+const createNew = async (req, res, next) => {
   try {
-    const createdTour = await tourService.creatNew(req.body)
-    res.status(StatusCodes.CREATED).json({ tour: createdTour })
+    const createdTour = await tourService.createNew(req.body)
+    console.log(createdTour)
+    return res.status(StatusCodes.CREATED).json(createdTour)
   } catch (error) {
     next(error)
   }
 }
 
-export const tourController = { creatNew }
+export const tourController = { createNew }

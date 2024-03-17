@@ -2,7 +2,7 @@ import Joi from 'joi'
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '~/utils/ApiError'
 
-const creatNew = async (req, res, next) => {
+const createNew = async (req, res, next) => {
   const correctCondition = Joi.object({
     name: Joi.string().required().min(10).max(40).trim().strict(),
     duration: Joi.number().required()
@@ -16,4 +16,4 @@ const creatNew = async (req, res, next) => {
   }
 }
 
-export const tourValidation = { creatNew }
+export const tourValidation = { createNew }

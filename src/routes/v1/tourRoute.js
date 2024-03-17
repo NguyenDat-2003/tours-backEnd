@@ -9,6 +9,6 @@ Router.route('/')
   .get((req, res) => {
     res.status(StatusCodes.OK).json({ message: 'test route' })
   })
-  .post(tourValidation.creatNew, tourController.creatNew)
+  .post(tourValidation.createNew, tourController.createNew)
 
 export const tourRoute = Router
