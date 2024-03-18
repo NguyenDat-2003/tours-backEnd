@@ -9,7 +9,6 @@ const createNew = async (req, res, next) => {
     maxGroupSize: Joi.number().required(),
     difficulty: Joi.string().required().valid('easy', 'medium', 'difficult'),
     price: Joi.number().required(),
-    priceDiscount: Joi.number().required(),
 
     summary: Joi.string().required().trim().strict(),
     imageCover: Joi.string().required().trim().strict()

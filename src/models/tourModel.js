@@ -14,7 +14,7 @@ const TOUR_COLLECTION_SCHEMA = Joi.object({
   ratingsAverage: Joi.number().min(1).max(5).default(4.5),
   ratingsQuantity: Joi.number().default(0),
   price: Joi.number().required(),
-  priceDiscount: Joi.number().less(Joi.ref('price')).required(),
+  priceDiscount: Joi.number().less(Joi.ref('price')),
   summary: Joi.string().required().trim().strict(),
   imageCover: Joi.string().required().trim().strict(),
   description: Joi.string().trim().strict(),
@@ -74,6 +74,15 @@ const findOneById = async (tourId) => {
     throw new Error(error)
   }
 }
+
+const getAll = async () => {
+  try {
+    return await GET_DB().collection(TOUR_COLLECTION_NAME).find().toArray()
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 const getDetail = async (tourId) => {
   try {
     return await GET_DB()
@@ -100,4 +109,24 @@ const getDetail = async (tourId) => {
   }
 }
 
-export const tourModel = { TOUR_COLLECTION_NAME, TOUR_COLLECTION_SCHEMA, createNew, findOneById, getDetail }
+const deleteDetail = async (tourId) => {
+  try {
+    return await GET_DB()
+      .collection(TOUR_COLLECTION_NAME)
+      .findOneAndDelete({ _id: new ObjectId(tourId) })
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const updateDetail = async (tourId, reqBody) => {
+  try {
+    return await GET_DB()
+      .collection(TOUR_COLLECTION_NAME)
+      .findOneAndUpdate({ _id: new ObjectId(tourId) }, { $set: reqBody }, { returnDocument: 'after' })
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+export const tourModel = { TOUR_COLLECTION_NAME, TOUR_COLLECTION_SCHEMA, createNew, findOneById, getDetail, getAll, deleteDetail, updateDetail }
