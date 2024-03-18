@@ -11,4 +11,6 @@ Router.route('/')
   })
   .post(tourValidation.createNew, tourController.createNew)
 
+Router.route('/:id').get(tourController.getDetail)
+
 export const tourRoute = Router

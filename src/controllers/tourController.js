@@ -9,5 +9,13 @@ const createNew = async (req, res, next) => {
     next(error)
   }
 }
+const getDetail = async (req, res, next) => {
+  try {
+    const Tour = await tourService.getDetail(req.params.id)
+    return res.status(StatusCodes.CREATED).json(Tour)
+  } catch (error) {
+    next(error)
+  }
+}
 
-export const tourController = { createNew }
+export const tourController = { createNew, getDetail }
