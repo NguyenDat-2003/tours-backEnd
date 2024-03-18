@@ -1,5 +1,7 @@
 /* eslint-disable no-useless-catch */
+import { StatusCodes } from 'http-status-codes'
 import { tourModel } from '~/models/tourModel'
+import ApiError from '~/utils/ApiError'
 import slugify from '~/utils/slugify'
 
 const createNew = async (reqBody) => {
@@ -18,5 +20,17 @@ const createNew = async (reqBody) => {
     throw error
   }
 }
+const getDetail = async (tourId) => {
+  try {
+    // Gọi đến tầng model để xử lý lưu bản ghi vào database sau đó trả data về cho controller
+    const Tour = await tourModel.getDetail(tourId)
+    if (!Tour) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Tour not found')
+    }
+    return Tour
+  } catch (error) {
+    throw error
+  }
+}
 
-export const tourService = { createNew }
+export const tourService = { createNew, getDetail }

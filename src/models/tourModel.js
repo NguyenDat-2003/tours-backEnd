@@ -2,6 +2,7 @@ import Joi from 'joi'
 import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
+import { userModel } from './userModel'
 
 const TOUR_COLLECTION_NAME = 'tours'
 const TOUR_COLLECTION_SCHEMA = Joi.object({
@@ -54,6 +55,10 @@ const createNew = async (data) => {
     const validData = await validateBeforeCreate(data)
     // console.log(validData.locations)
 
+    if (validData.guides) {
+      validData.guides = validData.guides.map((guide) => new ObjectId(guide))
+    }
+
     return await GET_DB().collection(TOUR_COLLECTION_NAME).insertOne(validData)
   } catch (error) {
     throw new Error(error)
@@ -69,5 +74,30 @@ const findOneById = async (tourId) => {
     throw new Error(error)
   }
 }
+const getDetail = async (tourId) => {
+  try {
+    return await GET_DB()
+      .collection(TOUR_COLLECTION_NAME)
+      .aggregate([
+        {
+          $match: {
+            _id: new ObjectId(tourId),
+            _destroy: false
+          }
+        },
+        {
+          $lookup: {
+            from: userModel.USER_COLLECTION_NAME,
+            localField: 'guides',
+            foreignField: '_id',
+            as: 'guides'
+          }
+        }
+      ])
+      .toArray()
+  } catch (error) {
+    throw new Error(error)
+  }
+}
 
-export const tourModel = { TOUR_COLLECTION_NAME, TOUR_COLLECTION_SCHEMA, createNew, findOneById }
+export const tourModel = { TOUR_COLLECTION_NAME, TOUR_COLLECTION_SCHEMA, createNew, findOneById, getDetail }
