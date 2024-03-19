@@ -49,4 +49,22 @@ const findOneById = async (tourId) => {
   }
 }
 
-export const userModel = { USER_COLLECTION_NAME, USER_COLLECTION_SCHEMA, createNew, findOneById }
+const getAll = async () => {
+  try {
+    return await GET_DB().collection(USER_COLLECTION_NAME).find().toArray()
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const getDetail = async (userId) => {
+  try {
+    return await GET_DB()
+      .collection(USER_COLLECTION_NAME)
+      .findOne({ _id: new ObjectId(userId) })
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+export const userModel = { USER_COLLECTION_NAME, USER_COLLECTION_SCHEMA, createNew, findOneById, getAll, getDetail }
