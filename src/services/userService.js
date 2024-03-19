@@ -18,4 +18,24 @@ const createNew = async (reqBody) => {
   }
 }
 
-export const userService = { createNew }
+const getAll = async () => {
+  try {
+    // Gọi đến tầng model để xử lý lưu bản ghi vào database sau đó trả data về cho controller
+    const User = await userModel.getAll()
+    return User
+  } catch (error) {
+    throw error
+  }
+}
+
+const getDetail = async (userId) => {
+  try {
+    // Gọi đến tầng model để xử lý lưu bản ghi vào database sau đó trả data về cho controller
+    const Tour = await userModel.getDetail(userId)
+    return Tour
+  } catch (error) {
+    throw error
+  }
+}
+
+export const userService = { createNew, getAll, getDetail }

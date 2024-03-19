@@ -1,6 +1,5 @@
 /* eslint-disable no-useless-catch */
 import { StatusCodes } from 'http-status-codes'
-import Joi from 'joi'
 import { tourModel } from '~/models/tourModel'
 import ApiError from '~/utils/ApiError'
 import slugify from '~/utils/slugify'
