@@ -1,8 +1,5 @@
 import { StatusCodes } from 'http-status-codes'
-import Joi from 'joi'
 import { userService } from '~/services/userService'
-import ApiError from '~/utils/ApiError'
-import { OBJECT_ID_RULE } from '~/utils/validators'
 
 const createNew = async (req, res, next) => {
   try {

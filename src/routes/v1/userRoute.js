@@ -1,8 +1,11 @@
 import express from 'express'
+import { authController } from '~/controllers/authcontroller'
 import { userController } from '~/controllers/userController'
 import { userValidation } from '~/validations/userValidation'
 
 const Router = express.Router()
+
+Router.route('/signup').post(userValidation.createNew, authController.signUp)
 
 Router.route('/').get(userController.getAll).post(userValidation.createNew, userController.createNew)
 

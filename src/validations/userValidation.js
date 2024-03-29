@@ -11,7 +11,7 @@ const createNew = async (req, res, next) => {
       .email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } })
       .message('Invalid Email'),
     password: Joi.string().required().min(8),
-    passwordConfirm: Joi.ref('password')
+    passwordConfirm: Joi.any().valid(Joi.ref('password')).required().messages({ 'any.only': '{{#label}} does not match' })
   })
 
   try {
