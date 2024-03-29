@@ -1,5 +1,8 @@
 import { StatusCodes } from 'http-status-codes'
+import Joi from 'joi'
 import { userService } from '~/services/userService'
+import ApiError from '~/utils/ApiError'
+import { OBJECT_ID_RULE } from '~/utils/validators'
 
 const createNew = async (req, res, next) => {
   try {
@@ -27,5 +30,22 @@ const getDetail = async (req, res, next) => {
     next(error)
   }
 }
+const deleteDetail = async (req, res, next) => {
+  try {
+    const User = await userService.deleteDetail(req.params.id)
+    return res.status(StatusCodes.CREATED).json(User)
+  } catch (error) {
+    next(error)
+  }
+}
 
-export const userController = { createNew, getAll, getDetail }
+const updateDetail = async (req, res, next) => {
+  try {
+    const User = await userService.updateDetail(req.params.id, req.body)
+    return res.status(StatusCodes.CREATED).json(User)
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const userController = { createNew, getAll, getDetail, deleteDetail, updateDetail }

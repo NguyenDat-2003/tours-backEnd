@@ -1,6 +1,8 @@
 /* eslint-disable no-useless-catch */
 import { userModel } from '~/models/userModel'
 import bcrypt from 'bcryptjs'
+import ApiError from '~/utils/ApiError'
+import { StatusCodes } from 'http-status-codes'
 
 const createNew = async (reqBody) => {
   try {
@@ -38,4 +40,32 @@ const getDetail = async (userId) => {
   }
 }
 
-export const userService = { createNew, getAll, getDetail }
+const deleteDetail = async (userId) => {
+  try {
+    // Gọi đến tầng model để xử lý lưu bản ghi vào database sau đó trả data về cho controller
+    const Tour = await userModel.deleteDetail(userId)
+    if (!Tour) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'User not found!')
+    }
+
+    return { delete: 'Delete Successfully!' }
+  } catch (error) {
+    throw error
+  }
+}
+
+const updateDetail = async (userId, reqBody) => {
+  try {
+    // Gọi đến tầng model để xử lý lưu bản ghi vào database sau đó trả data về cho controller
+    const Tour = await userModel.updateDetail(userId, reqBody)
+    if (!Tour) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'User not found!')
+    }
+
+    return { delete: 'Delete Successfully!' }
+  } catch (error) {
+    throw error
+  }
+}
+
+export const userService = { createNew, getAll, getDetail, deleteDetail, updateDetail }
