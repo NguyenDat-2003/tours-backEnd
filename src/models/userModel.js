@@ -67,4 +67,24 @@ const getDetail = async (userId) => {
   }
 }
 
-export const userModel = { USER_COLLECTION_NAME, USER_COLLECTION_SCHEMA, createNew, findOneById, getAll, getDetail }
+const deleteDetail = async (userId) => {
+  try {
+    return await GET_DB()
+      .collection(USER_COLLECTION_NAME)
+      .findOneAndDelete({ _id: new ObjectId(userId) })
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const updateDetail = async (userId, reqBody) => {
+  try {
+    return await GET_DB()
+      .collection(USER_COLLECTION_NAME)
+      .findOneAndUpdate({ _id: new ObjectId(userId) }, { $set: reqBody }, { returnDocument: 'after' })
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+export const userModel = { USER_COLLECTION_NAME, USER_COLLECTION_SCHEMA, createNew, findOneById, getAll, getDetail, deleteDetail, updateDetail }
