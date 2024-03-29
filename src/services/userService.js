@@ -12,8 +12,8 @@ const createNew = async (reqBody) => {
       password: await bcrypt.hash(reqBody.password, 12)
     }
     // Gọi đến tầng model để xử lý lưu bản ghi vào database sau đó trả data về cho controller
-    const createdTour = await userModel.createNew(newUser)
-    const getNewUser = await userModel.findOneById(createdTour.insertedId)
+    const createdUser = await userModel.createNew(newUser)
+    const getNewUser = await userModel.findOneById(createdUser.insertedId)
     return getNewUser
   } catch (error) {
     throw error
