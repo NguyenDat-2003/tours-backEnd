@@ -1,6 +1,9 @@
+import { StatusCodes } from 'http-status-codes'
+import bcrypt from 'bcryptjs'
 import Joi from 'joi'
 import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
+import ApiError from '~/utils/ApiError'
 
 const USER_COLLECTION_NAME = 'users'
 const USER_COLLECTION_SCHEMA = Joi.object({
@@ -87,4 +90,12 @@ const updateDetail = async (userId, reqBody) => {
   }
 }
 
-export const userModel = { USER_COLLECTION_NAME, USER_COLLECTION_SCHEMA, createNew, findOneById, getAll, getDetail, deleteDetail, updateDetail }
+const login = async (reqBody) => {
+  try {
+    return await GET_DB().collection(USER_COLLECTION_NAME).findOne({ email: reqBody.email })
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+export const userModel = { USER_COLLECTION_NAME, USER_COLLECTION_SCHEMA, createNew, findOneById, getAll, getDetail, deleteDetail, updateDetail, login }

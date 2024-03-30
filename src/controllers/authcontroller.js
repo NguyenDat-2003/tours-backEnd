@@ -10,4 +10,13 @@ const signUp = async (req, res, next) => {
   }
 }
 
-export const authController = { signUp }
+const login = async (req, res, next) => {
+  try {
+    const User = await authService.login(req.body)
+    return res.status(StatusCodes.OK).json(User)
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const authController = { signUp, login }
