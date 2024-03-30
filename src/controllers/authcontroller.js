@@ -29,6 +29,16 @@ const protect = async (req, res, next) => {
   next()
 }
 
+const restrictTo = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return next(new ApiError(StatusCodes.FORBIDDEN, 'You do not have permission to perform this action'))
+    }
+
+    next()
+  }
+}
+
 const signUp = async (req, res, next) => {
   try {
     const createdUser = await authService.signUp(req.body)
@@ -47,4 +57,4 @@ const login = async (req, res, next) => {
   }
 }
 
-export const authController = { signUp, login, protect }
+export const authController = { signUp, login, protect, restrictTo }
