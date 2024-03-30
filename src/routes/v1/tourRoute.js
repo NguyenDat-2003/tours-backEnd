@@ -1,11 +1,15 @@
 import express from 'express'
+import { authController } from '~/controllers/authcontroller'
 import { tourController } from '~/controllers/tourController'
 import { tourValidation } from '~/validations/tourValidation'
 
 const Router = express.Router()
 
-Router.route('/').get(tourController.getAll).post(tourValidation.createNew, tourController.createNew)
+Router.route('/').get(tourController.getAll).post(authController.protect, authController.restrictTo('admin', 'lead-guide'), tourValidation.createNew, tourController.createNew)
 
-Router.route('/:id').get(tourController.getDetail).delete(tourValidation.deleteItem, tourController.deleteDetail).put(tourValidation.update, tourController.updateDetail)
+Router.route('/:id')
+  .get(tourController.getDetail)
+  .put(authController.protect, authController.restrictTo('admin', 'lead-guide'), tourValidation.update, tourController.updateDetail)
+  .delete(authController.protect, authController.restrictTo('admin', 'lead-guide'), tourValidation.deleteItem, tourController.deleteDetail)
 
 export const tourRoute = Router

@@ -8,7 +8,8 @@ const Router = express.Router()
 Router.route('/signup').post(userValidation.createNew, authController.signUp)
 Router.route('/login').post(authController.login)
 
-Router.route('/').get(authController.protect, userController.getAll).post(userValidation.createNew, userController.createNew)
+Router.use(authController.protect, authController.restrictTo('admin'))
+Router.route('/').get(userController.getAll).post(userValidation.createNew, userController.createNew)
 
 Router.route('/:id').get(userController.getDetail).delete(userValidation.deleteItem, userController.deleteDetail).put(userValidation.update, userController.updateDetail)
 
