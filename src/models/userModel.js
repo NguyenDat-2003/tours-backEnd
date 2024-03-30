@@ -1,9 +1,6 @@
-import { StatusCodes } from 'http-status-codes'
-import bcrypt from 'bcryptjs'
 import Joi from 'joi'
 import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
-import ApiError from '~/utils/ApiError'
 
 const USER_COLLECTION_NAME = 'users'
 const USER_COLLECTION_SCHEMA = Joi.object({
@@ -42,11 +39,11 @@ const createNew = async (data) => {
   }
 }
 
-const findOneById = async (tourId) => {
+const findOneById = async (userId) => {
   try {
     return await GET_DB()
       .collection(USER_COLLECTION_NAME)
-      .findOne({ _id: new ObjectId(tourId) })
+      .findOne({ _id: new ObjectId(userId) })
   } catch (error) {
     throw new Error(error)
   }
