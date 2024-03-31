@@ -1,9 +1,11 @@
 import { StatusCodes } from 'http-status-codes'
 import { promisify } from 'util'
 import jwt from 'jsonwebtoken'
+
 import { authService } from '~/services/authService'
 import ApiError from '~/utils/ApiError'
 import { userModel } from '~/models/userModel'
+import { sendEmail } from '~/utils/email'
 
 const protect = async (req, res, next) => {
   // 1) Getting token and check of it's there
@@ -57,4 +59,50 @@ const login = async (req, res, next) => {
   }
 }
 
-export const authController = { signUp, login, protect, restrictTo }
+const forgotPassword = async (req, res, next) => {
+  try {
+    const user = await authService.findEmailResetToken(req.body.email)
+    const resetURL = `${req.protocol}://${req.get('host')}/v1/users/resetPassword/${user.passwordResetToken}`
+
+    const message = `Forgot your password? Submit a PATCH request with your new password 
+  and passwordConfirm to: ${resetURL}.\nIf you didn't forget your password, please ignore this email!`
+
+    try {
+      await sendEmail({
+        email: user.email,
+        subject: 'Your password reset token (valid for 10 min)',
+        message
+      })
+
+      res.status(StatusCodes.OK).json({
+        status: 'success',
+        message: 'Token sent to email!'
+      })
+    } catch (err) {
+      user.passwordResetToken = undefined
+      user.passwordResetExpires = undefined
+
+      return next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'There was an error sending the email. Try again later!'))
+    }
+  } catch (error) {
+    next(error)
+  }
+}
+
+const resetPassword = async (req, res, next) => {
+  try {
+    //----------- 1) Get user based on the token
+    const hashedToken = req.params.token
+    // const hashedToken = crypto.createHash('sha256').update(req.params.token).digest('hex')
+    const token = await authService.resetPassword(req, hashedToken)
+
+    res.status(200).json({
+      status: 'success',
+      token
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const authController = { signUp, login, protect, restrictTo, forgotPassword, resetPassword }
