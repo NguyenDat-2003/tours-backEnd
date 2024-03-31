@@ -5,11 +5,13 @@ import { userValidation } from '~/validations/userValidation'
 
 const Router = express.Router()
 
-Router.route('/signup').post(userValidation.createNew, authController.signUp)
-Router.route('/login').post(authController.login)
+Router.post('/signup', userValidation.createNew, authController.signUp)
+Router.post('/login', authController.login)
 
-Router.route('/forgotPassword').post(authController.forgotPassword)
-Router.route('/resetPassword/:token').put(userValidation.update, authController.resetPassword)
+Router.post('/forgotPassword', authController.forgotPassword)
+Router.put('/resetPassword/:token', userValidation.update, authController.resetPassword)
+
+Router.put('/updatePassword', authController.protect, authController.updatePassword)
 
 Router.use(authController.protect, authController.restrictTo('admin'))
 Router.route('/').get(userController.getAll).post(userValidation.createNew, userController.createNew)
