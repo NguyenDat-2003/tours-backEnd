@@ -1,5 +1,6 @@
 import Joi from 'joi'
 import { ObjectId } from 'mongodb'
+import crypto from 'crypto'
 import { GET_DB } from '~/config/mongodb'
 
 const USER_COLLECTION_NAME = 'users'
@@ -14,6 +15,9 @@ const USER_COLLECTION_SCHEMA = Joi.object({
   avatar: Joi.string().trim().strict().default('default.jpg'),
   role: Joi.string().valid('user', 'guide', 'lead-guide', 'admin').default('user'),
   isAcive: Joi.boolean().default(true),
+
+  passwordResetToken: Joi.string(),
+  passwordResetExpires: Joi.date(),
 
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(null),
@@ -95,4 +99,44 @@ const login = async (reqBody) => {
   }
 }
 
-export const userModel = { USER_COLLECTION_NAME, USER_COLLECTION_SCHEMA, createNew, findOneById, getAll, getDetail, deleteDetail, updateDetail, login }
+const findEmailResetToken = async (email) => {
+  try {
+    const user = await GET_DB().collection(USER_COLLECTION_NAME).findOne({ email })
+
+    // Create Password Reset Token
+    const resetToken = crypto.randomBytes(32).toString('hex')
+
+    user.passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex')
+
+    // I need to specify a time to expire this token. In this example is (10 min)
+    user.passwordResetExpires = Date.now() + 10 * 60 * 1000
+
+    return await GET_DB()
+      .collection(USER_COLLECTION_NAME)
+      .findOneAndUpdate({ _id: new ObjectId(user._id) }, { $set: user }, { returnDocument: 'after' })
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const findTokenResetPass = async (hashedToken) => {
+  try {
+    return await GET_DB().collection(USER_COLLECTION_NAME).findOne({ passwordResetToken: hashedToken })
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+export const userModel = {
+  USER_COLLECTION_NAME,
+  USER_COLLECTION_SCHEMA,
+  createNew,
+  findOneById,
+  getAll,
+  getDetail,
+  deleteDetail,
+  updateDetail,
+  login,
+  findEmailResetToken,
+  findTokenResetPass
+}

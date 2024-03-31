@@ -39,7 +39,8 @@ const update = async (req, res, next) => {
   const correctCondition = Joi.object({
     userName: Joi.string().trim().strict(),
     email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } }),
-    password: Joi.string().min(8)
+    password: Joi.string().min(8),
+    passwordConfirm: Joi.any().valid(Joi.ref('password')).messages({ 'any.only': '{{#label}} does not match' })
   })
 
   try {

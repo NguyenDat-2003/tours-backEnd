@@ -37,14 +37,13 @@ const login = async (reqBody) => {
     const { email, password } = reqBody
 
     if (!email || !password) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, 'Please provide email and password!')
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Please provide email and password!')
     }
 
     const user = await userModel.login(reqBody)
     if (!user) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, 'Incorrect email or password!')
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Incorrect email or password!')
     }
-
     const matchUser = await bcrypt.compare(password, user.password)
     if (matchUser) {
       let token = signToken(user._id)
@@ -57,4 +56,46 @@ const login = async (reqBody) => {
   }
 }
 
-export const authService = { signUp, login }
+const findEmailResetToken = async (email) => {
+  try {
+    // ------------ 1) Get user based on POSTed email
+    const user = await userModel.findEmailResetToken(email)
+    if (!user) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'There is no user with email address.')
+    }
+
+    // ------------ 2) Generate the random reset token
+
+    // ------------ 3) Send it to user's email
+
+    return user
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const resetPassword = async (req, hashedToken) => {
+  const user = await userModel.findTokenResetPass(hashedToken)
+  //----------- 2) If token has not expired, and there is user, set the new password
+  if (!user) {
+    throw new ApiError(StatusCodes.NOT_FOUND, 'Token is invalid or has expired')
+  }
+
+  const newUser = {
+    ...user,
+    password: await bcrypt.hash(req.body.password, 12),
+    passwordConfirm: null,
+    passwordResetExpires: null,
+    passwordResetToken: null
+  }
+
+  await userModel.updateDetail(user._id, newUser)
+
+  //----------- 3) Update changedPasswordAt property for the user
+  //----------- 4) Log the user in, send JWT
+  const token = signToken(user._id)
+
+  return token
+}
+
+export const authService = { signUp, login, findEmailResetToken, resetPassword }

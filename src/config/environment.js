@@ -10,5 +10,9 @@ export const env = {
   JWT_SECRET: process.env.JWT_SECRET,
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN,
 
-  AUTHOR: process.env.AUTHOR
+  AUTHOR: process.env.AUTHOR,
+  EMAIL_HOST: process.env.EMAIL_HOST,
+  EMAIL_PORT: process.env.EMAIL_PORT,
+  EMAIL_USERNAME: process.env.EMAIL_USERNAME,
+  EMAIL_PASSWORD: process.env.EMAIL_PASSWORD
 }
