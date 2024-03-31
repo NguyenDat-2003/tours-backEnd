@@ -33,8 +33,8 @@ const getAll = async () => {
 const getDetail = async (userId) => {
   try {
     // Gọi đến tầng model để xử lý lưu bản ghi vào database sau đó trả data về cho controller
-    const Tour = await userModel.getDetail(userId)
-    return Tour
+    const user = await userModel.getDetail(userId)
+    return user
   } catch (error) {
     throw error
   }
@@ -43,8 +43,8 @@ const getDetail = async (userId) => {
 const deleteDetail = async (userId) => {
   try {
     // Gọi đến tầng model để xử lý lưu bản ghi vào database sau đó trả data về cho controller
-    const Tour = await userModel.deleteDetail(userId)
-    if (!Tour) {
+    const user = await userModel.deleteDetail(userId)
+    if (!user) {
       throw new ApiError(StatusCodes.NOT_FOUND, 'User not found!')
     }
 

@@ -1,6 +1,7 @@
 import { StatusCodes } from 'http-status-codes'
 import { promisify } from 'util'
 import jwt from 'jsonwebtoken'
+import bcrypt from 'bcryptjs'
 
 import { authService } from '~/services/authService'
 import ApiError from '~/utils/ApiError'
@@ -96,7 +97,7 @@ const resetPassword = async (req, res, next) => {
     // const hashedToken = crypto.createHash('sha256').update(req.params.token).digest('hex')
     const token = await authService.resetPassword(req, hashedToken)
 
-    res.status(200).json({
+    res.status(StatusCodes.OK).json({
       status: 'success',
       token
     })
@@ -105,4 +106,19 @@ const resetPassword = async (req, res, next) => {
   }
 }
 
-export const authController = { signUp, login, protect, restrictTo, forgotPassword, resetPassword }
+const updatePassword = async (req, res, next) => {
+  try {
+    const { passwordCurrent, password, passwordConfirm } = req.body
+
+    const token = await authService.updatePassword(passwordCurrent, password, passwordConfirm, req.user._id)
+
+    res.status(StatusCodes.OK).json({
+      status: 'success',
+      token
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const authController = { signUp, login, protect, restrictTo, forgotPassword, resetPassword, updatePassword }
