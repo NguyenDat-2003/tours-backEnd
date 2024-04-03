@@ -13,6 +13,7 @@ Router.put('/resetPassword/:token', userValidation.update, authController.resetP
 
 Router.put('/updatePassword', authController.protect, authController.updatePassword)
 Router.put('/updateMe', authController.protect, userController.updateMe)
+Router.delete('/deleteMe', authController.protect, userController.deleteMe)
 
 Router.use(authController.protect, authController.restrictTo('admin'))
 Router.route('/').get(userController.getAll).post(userValidation.createNew, userController.createNew)
