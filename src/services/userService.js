@@ -68,4 +68,23 @@ const updateDetail = async (userId, reqBody) => {
   }
 }
 
-export const userService = { createNew, getAll, getDetail, deleteDetail, updateDetail }
+const filterObj = (obj, ...allowedFields) => {
+  const newObj = {}
+  Object.keys(obj).forEach((el) => {
+    if (allowedFields.includes(el)) newObj[el] = obj[el]
+  })
+  return newObj
+}
+
+const updateMe = async (reqUserId, reqBody) => {
+  try {
+    const filteredBody = filterObj(reqBody, 'userName', 'email', 'avatar')
+
+    await userModel.updateMe(reqUserId, filteredBody)
+    return { update: 'Update Successfully!' }
+  } catch (error) {
+    throw error
+  }
+}
+
+export const userService = { createNew, getAll, getDetail, deleteDetail, updateDetail, updateMe }

@@ -12,6 +12,7 @@ Router.post('/forgotPassword', authController.forgotPassword)
 Router.put('/resetPassword/:token', userValidation.update, authController.resetPassword)
 
 Router.put('/updatePassword', authController.protect, authController.updatePassword)
+Router.put('/updateMe', authController.protect, userController.updateMe)
 
 Router.use(authController.protect, authController.restrictTo('admin'))
 Router.route('/').get(userController.getAll).post(userValidation.createNew, userController.createNew)
