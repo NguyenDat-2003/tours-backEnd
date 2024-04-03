@@ -1,6 +1,7 @@
 import { StatusCodes } from 'http-status-codes'
 import { promisify } from 'util'
 import jwt from 'jsonwebtoken'
+import { env } from '~/config/environment'
 
 import { authService } from '~/services/authService'
 import ApiError from '~/utils/ApiError'
@@ -41,10 +42,23 @@ const restrictTo = (...roles) => {
   }
 }
 
+const createSignToken = (user, statusCode, res) => {
+  const token = signToken(user._id)
+
+  return res.status(statusCode).json({ status: 'success', token, user })
+}
+
+const signToken = (id) => {
+  return jwt.sign({ id }, env.JWT_SECRET, {
+    //---JWT hết hạn sau 30 ngày
+    expiresIn: env.JWT_EXPIRES_IN
+  })
+}
+
 const signUp = async (req, res, next) => {
   try {
     const createdUser = await authService.signUp(req.body)
-    return res.status(StatusCodes.CREATED).json(createdUser)
+    createSignToken(createdUser, StatusCodes.CREATED, res)
   } catch (error) {
     next(error)
   }
@@ -52,8 +66,8 @@ const signUp = async (req, res, next) => {
 
 const login = async (req, res, next) => {
   try {
-    const User = await authService.login(req.body)
-    return res.status(StatusCodes.OK).json(User)
+    const user = await authService.login(req.body)
+    createSignToken(user, StatusCodes.OK, res)
   } catch (error) {
     next(error)
   }
@@ -94,12 +108,8 @@ const resetPassword = async (req, res, next) => {
     //----------- 1) Get user based on the token
     const hashedToken = req.params.token
     // const hashedToken = crypto.createHash('sha256').update(req.params.token).digest('hex')
-    const token = await authService.resetPassword(req, hashedToken)
-
-    res.status(StatusCodes.OK).json({
-      status: 'success',
-      token
-    })
+    const user = await authService.resetPassword(req, hashedToken)
+    createSignToken(user, StatusCodes.OK, res)
   } catch (error) {
     next(error)
   }
@@ -109,12 +119,8 @@ const updatePassword = async (req, res, next) => {
   try {
     const { passwordCurrent, password, passwordConfirm } = req.body
 
-    const token = await authService.updatePassword(passwordCurrent, password, passwordConfirm, req.user._id)
-
-    res.status(StatusCodes.OK).json({
-      status: 'success',
-      token
-    })
+    const user = await authService.updatePassword(passwordCurrent, password, passwordConfirm, req.user._id)
+    createSignToken(user, StatusCodes.OK, res)
   } catch (error) {
     next(error)
   }

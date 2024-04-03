@@ -1,16 +1,7 @@
 import bcrypt from 'bcryptjs'
 import { StatusCodes } from 'http-status-codes'
-import jwt from 'jsonwebtoken'
-import { env } from '~/config/environment'
 import { userModel } from '~/models/userModel'
 import ApiError from '~/utils/ApiError'
-
-const signToken = (id) => {
-  return jwt.sign({ id }, env.JWT_SECRET, {
-    //---JWT hết hạn sau 30 ngày
-    expiresIn: env.JWT_EXPIRES_IN
-  })
-}
 
 const signUp = async (reqBody) => {
   // eslint-disable-next-line no-useless-catch
@@ -22,10 +13,8 @@ const signUp = async (reqBody) => {
     }
     // Gọi đến tầng model để xử lý lưu bản ghi vào database sau đó trả data về cho controller
     const createdUser = await userModel.createNew(newUser)
-    const user = await userModel.findOneById(createdUser.insertedId)
 
-    let token = signToken(user._id)
-    return { token, user }
+    return await userModel.findOneById(createdUser.insertedId)
   } catch (error) {
     throw error
   }
@@ -46,8 +35,7 @@ const login = async (reqBody) => {
     }
     const matchUser = await bcrypt.compare(password, user.password)
     if (matchUser) {
-      let token = signToken(user._id)
-      return { token, user }
+      return user
     } else {
       throw new ApiError(StatusCodes.BAD_REQUEST, 'Incorrect email or password!')
     }
@@ -89,13 +77,10 @@ const resetPassword = async (req, hashedToken) => {
     passwordResetToken: null
   }
 
-  await userModel.updateDetail(user._id, newUser)
-
   //----------- 3) Update changedPasswordAt property for the user
   //----------- 4) Log the user in, send JWT
-  const token = signToken(user._id)
 
-  return token
+  return await userModel.updateDetail(user._id, newUser)
 }
 
 const updatePassword = async (passwordCurrent, password, passwordConfirm, userId) => {
@@ -116,9 +101,8 @@ const updatePassword = async (passwordCurrent, password, passwordConfirm, userId
   // User.findByIdAndUpdate will NOT work as intended!
 
   // 4) Log user in, send JWT
-  const token = signToken(user._id)
 
-  return token
+  return user
 }
 
 export const authService = { signUp, login, findEmailResetToken, resetPassword, updatePassword }
