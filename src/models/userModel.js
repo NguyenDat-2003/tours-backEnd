@@ -127,6 +127,16 @@ const findTokenResetPass = async (hashedToken) => {
   }
 }
 
+const updateMe = async (reqUserId, filteredBody) => {
+  try {
+    return await GET_DB()
+      .collection(USER_COLLECTION_NAME)
+      .findOneAndUpdate({ _id: new ObjectId(reqUserId) }, { $set: filteredBody }, { returnDocument: 'after' })
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 export const userModel = {
   USER_COLLECTION_NAME,
   USER_COLLECTION_SCHEMA,
@@ -138,5 +148,6 @@ export const userModel = {
   updateDetail,
   login,
   findEmailResetToken,
-  findTokenResetPass
+  findTokenResetPass,
+  updateMe
 }

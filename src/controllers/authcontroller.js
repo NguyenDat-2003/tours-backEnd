@@ -1,7 +1,6 @@
 import { StatusCodes } from 'http-status-codes'
 import { promisify } from 'util'
 import jwt from 'jsonwebtoken'
-import bcrypt from 'bcryptjs'
 
 import { authService } from '~/services/authService'
 import ApiError from '~/utils/ApiError'
