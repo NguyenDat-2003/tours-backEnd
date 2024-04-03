@@ -87,4 +87,17 @@ const updateMe = async (reqUserId, reqBody) => {
   }
 }
 
-export const userService = { createNew, getAll, getDetail, deleteDetail, updateDetail, updateMe }
+const deleteMe = async (reqUser) => {
+  try {
+    const newUser = {
+      ...reqUser,
+      isAcive: false
+    }
+    await userModel.deleteMe(newUser)
+    return { delete: 'Delete Successfully!' }
+  } catch (error) {
+    throw error
+  }
+}
+
+export const userService = { createNew, getAll, getDetail, deleteDetail, updateDetail, updateMe, deleteMe }

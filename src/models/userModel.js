@@ -14,7 +14,7 @@ const USER_COLLECTION_SCHEMA = Joi.object({
   displayName: Joi.string().trim().strict(),
   avatar: Joi.string().trim().strict().default('default.jpg'),
   role: Joi.string().valid('user', 'guide', 'lead-guide', 'admin').default('user'),
-  isAcive: Joi.boolean().default(true),
+  isActive: Joi.boolean().default(true),
 
   passwordResetToken: Joi.string(),
   passwordResetExpires: Joi.date(),
@@ -55,7 +55,10 @@ const findOneById = async (userId) => {
 
 const getAll = async () => {
   try {
-    return await GET_DB().collection(USER_COLLECTION_NAME).find().toArray()
+    return await GET_DB()
+      .collection(USER_COLLECTION_NAME)
+      .find({ isActive: { $ne: false } })
+      .toArray()
   } catch (error) {
     throw new Error(error)
   }
@@ -137,6 +140,16 @@ const updateMe = async (reqUserId, filteredBody) => {
   }
 }
 
+const deleteMe = async (newUser) => {
+  try {
+    return await GET_DB()
+      .collection(USER_COLLECTION_NAME)
+      .findOneAndUpdate({ _id: new ObjectId(newUser._id) }, { $set: newUser }, { returnDocument: 'after' })
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 export const userModel = {
   USER_COLLECTION_NAME,
   USER_COLLECTION_SCHEMA,
@@ -149,5 +162,6 @@ export const userModel = {
   login,
   findEmailResetToken,
   findTokenResetPass,
-  updateMe
+  updateMe,
+  deleteMe
 }

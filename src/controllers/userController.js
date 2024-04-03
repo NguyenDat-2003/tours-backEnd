@@ -60,4 +60,14 @@ const updateMe = async (req, res, next) => {
   }
 }
 
-export const userController = { createNew, getAll, getDetail, deleteDetail, updateDetail, updateMe }
+const deleteMe = async (req, res, next) => {
+  try {
+    const user = await userService.deleteMe(req.user)
+
+    return res.status(StatusCodes.OK).json(user)
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const userController = { createNew, getAll, getDetail, deleteDetail, updateDetail, updateMe, deleteMe }
