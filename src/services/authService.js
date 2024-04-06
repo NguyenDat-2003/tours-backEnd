@@ -14,7 +14,7 @@ const signUp = async (reqBody) => {
     // Gọi đến tầng model để xử lý lưu bản ghi vào database sau đó trả data về cho controller
     const createdUser = await userModel.createNew(newUser)
 
-    return await userModel.findOneById(createdUser.insertedId)
+    return await userModel.getDetail(createdUser.insertedId)
   } catch (error) {
     throw error
   }

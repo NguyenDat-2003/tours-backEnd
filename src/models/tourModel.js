@@ -65,19 +65,27 @@ const createNew = async (data) => {
   }
 }
 
-const findOneById = async (tourId) => {
+const getAll = async () => {
   try {
     return await GET_DB()
       .collection(TOUR_COLLECTION_NAME)
-      .findOne({ _id: new ObjectId(tourId) })
-  } catch (error) {
-    throw new Error(error)
-  }
-}
-
-const getAll = async () => {
-  try {
-    return await GET_DB().collection(TOUR_COLLECTION_NAME).find().toArray()
+      .aggregate([
+        {
+          $match: {
+            _destroy: false
+          }
+        },
+        {
+          $lookup: {
+            from: userModel.USER_COLLECTION_NAME,
+            localField: 'guides',
+            foreignField: '_id',
+            as: 'guides'
+          }
+        },
+        { $unset: ['guides.password'] }
+      ])
+      .toArray()
   } catch (error) {
     throw new Error(error)
   }
@@ -101,7 +109,8 @@ const getDetail = async (tourId) => {
             foreignField: '_id',
             as: 'guides'
           }
-        }
+        },
+        { $unset: ['guides.password'] }
       ])
       .toArray()
   } catch (error) {
@@ -129,4 +138,4 @@ const updateDetail = async (tourId, reqBody) => {
   }
 }
 
-export const tourModel = { TOUR_COLLECTION_NAME, TOUR_COLLECTION_SCHEMA, createNew, findOneById, getDetail, getAll, deleteDetail, updateDetail }
+export const tourModel = { TOUR_COLLECTION_NAME, TOUR_COLLECTION_SCHEMA, createNew, getDetail, getAll, deleteDetail, updateDetail }

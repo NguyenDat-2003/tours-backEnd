@@ -2,6 +2,8 @@ import Joi from 'joi'
 import { ObjectId } from 'mongodb'
 import crypto from 'crypto'
 import { GET_DB } from '~/config/mongodb'
+import ApiError from '~/utils/ApiError'
+import { StatusCodes } from 'http-status-codes'
 
 const USER_COLLECTION_NAME = 'users'
 const USER_COLLECTION_SCHEMA = Joi.object({
@@ -14,7 +16,6 @@ const USER_COLLECTION_SCHEMA = Joi.object({
   displayName: Joi.string().trim().strict(),
   avatar: Joi.string().trim().strict().default('default.jpg'),
   role: Joi.string().valid('user', 'guide', 'lead-guide', 'admin').default('user'),
-  isActive: Joi.boolean().default(true),
 
   passwordResetToken: Joi.string(),
   passwordResetExpires: Joi.date(),
@@ -35,19 +36,13 @@ const createNew = async (data) => {
     //--- Kiểm tra data trước khi insert vào database
     const validData = await validateBeforeCreate(data)
     // console.log(validData.locations)
+    const userExist = await userModel.getDetail(validData, validData.email)
+    if (userExist) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Email has already exist. Please provide new email!')
+    }
 
     delete validData.passwordConfirm
     return await GET_DB().collection(USER_COLLECTION_NAME).insertOne(validData)
-  } catch (error) {
-    throw new Error(error)
-  }
-}
-
-const findOneById = async (userId) => {
-  try {
-    return await GET_DB()
-      .collection(USER_COLLECTION_NAME)
-      .findOne({ _id: new ObjectId(userId) })
   } catch (error) {
     throw new Error(error)
   }
@@ -57,15 +52,25 @@ const getAll = async () => {
   try {
     return await GET_DB()
       .collection(USER_COLLECTION_NAME)
-      .find({ isActive: { $ne: false } })
+      .aggregate([
+        {
+          $match: {
+            _destroy: { $ne: true }
+          }
+        },
+        { $unset: 'password' }
+      ])
       .toArray()
   } catch (error) {
     throw new Error(error)
   }
 }
 
-const getDetail = async (userId) => {
+const getDetail = async (userId, userEmail) => {
   try {
+    if (userEmail) {
+      return await GET_DB().collection(USER_COLLECTION_NAME).findOne({ email: userEmail })
+    }
     return await GET_DB()
       .collection(USER_COLLECTION_NAME)
       .findOne({ _id: new ObjectId(userId) })
@@ -154,7 +159,6 @@ export const userModel = {
   USER_COLLECTION_NAME,
   USER_COLLECTION_SCHEMA,
   createNew,
-  findOneById,
   getAll,
   getDetail,
   deleteDetail,
