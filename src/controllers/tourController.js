@@ -1,6 +1,5 @@
 import { StatusCodes } from 'http-status-codes'
 import { tourService } from '~/services/tourService'
-import ApiError from '~/utils/ApiError'
 
 const createNew = async (req, res, next) => {
   try {

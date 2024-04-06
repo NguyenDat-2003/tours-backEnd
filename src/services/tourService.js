@@ -14,7 +14,7 @@ const createNew = async (reqBody) => {
 
     // Gọi đến tầng model để xử lý lưu bản ghi vào database sau đó trả data về cho controller
     const createdTour = await tourModel.createNew(newTour)
-    const getNewTour = await tourModel.findOneById(createdTour.insertedId)
+    const getNewTour = await tourModel.getDetail(createdTour.insertedId)
     return getNewTour
   } catch (error) {
     throw error
@@ -36,7 +36,11 @@ const getAll = async () => {
   try {
     // Gọi đến tầng model để xử lý lưu bản ghi vào database sau đó trả data về cho controller
     const Tour = await tourModel.getAll()
-
+    // Tour.forEach((tour) => {
+    //   tour.guides.forEach(guide => {
+    //     delete guide
+    //   })
+    // })
     return Tour
   } catch (error) {
     throw error

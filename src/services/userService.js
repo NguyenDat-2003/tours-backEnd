@@ -13,7 +13,7 @@ const createNew = async (reqBody) => {
     }
     // Gọi đến tầng model để xử lý lưu bản ghi vào database sau đó trả data về cho controller
     const createdUser = await userModel.createNew(newUser)
-    const getNewUser = await userModel.findOneById(createdUser.insertedId)
+    const getNewUser = await userModel.getDetail(createdUser.insertedId)
     return getNewUser
   } catch (error) {
     throw error
@@ -34,6 +34,7 @@ const getDetail = async (userId) => {
   try {
     // Gọi đến tầng model để xử lý lưu bản ghi vào database sau đó trả data về cho controller
     const user = await userModel.getDetail(userId)
+    delete user.password
     return user
   } catch (error) {
     throw error
@@ -91,7 +92,7 @@ const deleteMe = async (reqUser) => {
   try {
     const newUser = {
       ...reqUser,
-      isAcive: false
+      _destroy: true
     }
     await userModel.deleteMe(newUser)
     return { delete: 'Delete Successfully!' }
