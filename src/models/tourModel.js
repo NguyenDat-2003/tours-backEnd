@@ -3,6 +3,7 @@ import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 import { userModel } from './userModel'
+import { reviewModel } from './reviewModel'
 
 const TOUR_COLLECTION_NAME = 'tours'
 const TOUR_COLLECTION_SCHEMA = Joi.object({
@@ -108,6 +109,14 @@ const getDetail = async (tourId) => {
             localField: 'guides',
             foreignField: '_id',
             as: 'guides'
+          }
+        },
+        {
+          $lookup: {
+            from: reviewModel.REVIEW_COLLECTION_NAME,
+            localField: '_id',
+            foreignField: 'tour',
+            as: 'reviews'
           }
         },
         { $unset: ['guides.password'] }

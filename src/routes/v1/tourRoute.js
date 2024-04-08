@@ -2,8 +2,11 @@ import express from 'express'
 import { authController } from '~/controllers/authcontroller'
 import { tourController } from '~/controllers/tourController'
 import { tourValidation } from '~/validations/tourValidation'
+import { reviewRoute } from './reviewRoute'
 
 const Router = express.Router()
+
+Router.use('/:tourId/reviews', reviewRoute)
 
 Router.route('/').get(tourController.getAll).post(authController.protect, authController.restrictTo('admin', 'lead-guide'), tourValidation.createNew, tourController.createNew)
 
