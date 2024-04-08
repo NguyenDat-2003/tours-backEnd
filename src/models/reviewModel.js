@@ -28,11 +28,16 @@ const createNew = async (reqBody) => {
     })
 }
 
-const getAll = async () => {
+const getAll = async (tourId) => {
   try {
     return await GET_DB()
       .collection(REVIEW_COLLECTION_NAME)
       .aggregate([
+        {
+          $match: {
+            tour: new ObjectId(tourId)
+          }
+        },
         {
           $lookup: {
             from: userModel.USER_COLLECTION_NAME,

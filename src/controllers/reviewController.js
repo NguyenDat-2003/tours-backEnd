@@ -3,7 +3,7 @@ import { reviewService } from '~/services/reviewService'
 
 const createReview = async (req, res, next) => {
   try {
-    const createdReview = await reviewService.createNew(req.body)
+    const createdReview = await reviewService.createNew(req)
     return res.status(StatusCodes.CREATED).json(createdReview)
   } catch (error) {
     next(error)
@@ -12,7 +12,7 @@ const createReview = async (req, res, next) => {
 
 const getAllReviews = async (req, res, next) => {
   try {
-    const reviews = await reviewService.getAll()
+    const reviews = await reviewService.getAll(req.params.tourId)
     return res.status(StatusCodes.CREATED).json(reviews)
   } catch (error) {
     next(error)

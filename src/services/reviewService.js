@@ -4,10 +4,12 @@ import { StatusCodes } from 'http-status-codes'
 import { reviewModel } from '~/models/reviewModel'
 import ApiError from '~/utils/ApiError'
 
-const createNew = async (reqBody) => {
+const createNew = async (req) => {
   try {
-    // Gọi đến tầng model để xử lý lưu bản ghi vào database sau đó trả data về cho controller
-    const createdReview = await reviewModel.createNew(reqBody)
+    if (!req.body.tour) req.body.tour = req.params.tourId
+    if (!req.body.user) req.body.user = req.user._id
+
+    const createdReview = await reviewModel.createNew(req.body)
     const getNewReview = await reviewModel.getDetail(createdReview.insertedId)
     return getNewReview
   } catch (error) {
@@ -15,9 +17,9 @@ const createNew = async (reqBody) => {
   }
 }
 
-const getAll = async () => {
+const getAll = async (tourId) => {
   try {
-    return await reviewModel.getAll()
+    return await reviewModel.getAll(tourId)
   } catch (error) {
     throw error
   }
