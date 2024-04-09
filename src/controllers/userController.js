@@ -70,4 +70,13 @@ const deleteMe = async (req, res, next) => {
   }
 }
 
-export const userController = { createNew, getAll, getDetail, deleteDetail, updateDetail, updateMe, deleteMe }
+const getMe = async (req, res, next) => {
+  try {
+    req.params.id = req.user._id
+    next()
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const userController = { createNew, getAll, getDetail, deleteDetail, updateDetail, updateMe, deleteMe, getMe }
