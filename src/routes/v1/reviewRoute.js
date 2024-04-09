@@ -5,8 +5,13 @@ import { reviewValidation } from '~/validations/reviewValidation'
 
 const Router = express.Router({ mergeParams: true })
 
-Router.route('/')
-  .post(authController.protect, authController.restrictTo('user'), reviewValidation.createNew, reviewController.createReview)
-  .get(authController.protect, reviewController.getAllReviews)
+Router.use(authController.protect)
+
+Router.route('/').get(reviewController.getAllReviews).post(authController.restrictTo('user'), reviewValidation.createNew, reviewController.createReview)
+
+Router.route('/:id')
+  .get(reviewController.getReview)
+  .put(authController.restrictTo('user', 'admin'), reviewValidation.update, reviewController.updateDetail)
+  .delete(authController.restrictTo('user', 'admin'), reviewController.deleteDetail)
 
 export const reviewRoute = Router

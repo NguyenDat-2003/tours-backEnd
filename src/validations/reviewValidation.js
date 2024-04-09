@@ -19,25 +19,10 @@ const createNew = async (req, res, next) => {
   }
 }
 
-const deleteItem = async (req, res, next) => {
-  const correctCondition = Joi.object({
-    id: Joi.string().pattern(OBJECT_ID_RULE).message('Your item fails to match the Object Id pattern!')
-  })
-
-  try {
-    await correctCondition.validateAsync(req.params, { abortEarly: false })
-    next()
-  } catch (error) {
-    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, error.message))
-  }
-}
-
 const update = async (req, res, next) => {
   const correctCondition = Joi.object({
-    userName: Joi.string().trim().strict(),
-    email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } }),
-    password: Joi.string().min(8),
-    passwordConfirm: Joi.any().valid(Joi.ref('password')).messages({ 'any.only': '{{#label}} does not match' })
+    review: Joi.string().trim().strict(),
+    rating: Joi.number().min(1).max(5)
   })
 
   try {
@@ -48,4 +33,4 @@ const update = async (req, res, next) => {
   }
 }
 
-export const reviewValidation = { createNew, deleteItem, update }
+export const reviewValidation = { createNew, update }
