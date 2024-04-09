@@ -17,9 +17,9 @@ const createNew = async (req) => {
   }
 }
 
-const getAll = async (tourId) => {
+const getAll = async () => {
   try {
-    return await reviewModel.getAll(tourId)
+    return await reviewModel.getAll()
   } catch (error) {
     throw error
   }
@@ -38,4 +38,30 @@ const getDetail = async (reviewId) => {
   }
 }
 
-export const reviewService = { createNew, getDetail, getAll }
+const updateDetail = async (reviewId, reqBody) => {
+  try {
+    // Gọi đến tầng model để xử lý lưu bản ghi vào database sau đó trả data về cho controller
+    const review = await reviewModel.updateDetail(reviewId, reqBody)
+    if (!review) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'review not found')
+    }
+    return review
+  } catch (error) {
+    throw error
+  }
+}
+
+const deleteDetail = async (reviewId) => {
+  try {
+    // Gọi đến tầng model để xử lý lưu bản ghi vào database sau đó trả data về cho controller
+    const review = await reviewModel.deleteDetail(reviewId)
+    if (!review) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'review not found')
+    }
+    return review
+  } catch (error) {
+    throw error
+  }
+}
+
+export const reviewService = { createNew, getDetail, getAll, updateDetail, deleteDetail }

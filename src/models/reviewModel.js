@@ -28,32 +28,9 @@ const createNew = async (reqBody) => {
     })
 }
 
-const getAll = async (tourId) => {
+const getAll = async () => {
   try {
-    return await GET_DB()
-      .collection(REVIEW_COLLECTION_NAME)
-      .aggregate([
-        {
-          $match: {
-            tour: new ObjectId(tourId)
-          }
-        },
-        {
-          $lookup: {
-            from: userModel.USER_COLLECTION_NAME,
-            localField: 'user',
-            foreignField: '_id',
-            as: 'user'
-          }
-        },
-        {
-          $addFields: {
-            user: { $arrayElemAt: ['$user', 0] } // Get the first element of the array
-          }
-        },
-        { $unset: ['user.password'] }
-      ])
-      .toArray()
+    return await GET_DB().collection(REVIEW_COLLECTION_NAME).find().toArray()
   } catch (error) {
     throw new Error(error)
   }
@@ -90,4 +67,24 @@ const getDetail = async (reviewId) => {
   }
 }
 
-export const reviewModel = { REVIEW_COLLECTION_NAME, REVIEW_COLLECTION_SCHEMA, createNew, getDetail, getAll }
+const updateDetail = async (tourId, reqBody) => {
+  try {
+    return await GET_DB()
+      .collection(REVIEW_COLLECTION_NAME)
+      .findOneAndUpdate({ _id: new ObjectId(tourId) }, { $set: reqBody }, { returnDocument: 'after' })
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const deleteDetail = async (reviewId) => {
+  try {
+    return await GET_DB()
+      .collection(REVIEW_COLLECTION_NAME)
+      .findOneAndDelete({ _id: new ObjectId(reviewId) })
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+export const reviewModel = { REVIEW_COLLECTION_NAME, REVIEW_COLLECTION_SCHEMA, createNew, getDetail, getAll, updateDetail, deleteDetail }
