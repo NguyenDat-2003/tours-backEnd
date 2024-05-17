@@ -87,4 +87,23 @@ const deleteDetail = async (reviewId) => {
   }
 }
 
-export const reviewModel = { REVIEW_COLLECTION_NAME, REVIEW_COLLECTION_SCHEMA, createNew, getDetail, getAll, updateDetail, deleteDetail }
+const calcAverageRatings = async () => {
+  try {
+    return await GET_DB()
+      .collection(REVIEW_COLLECTION_NAME)
+      .aggregate([
+        {
+          $group: {
+            _id: '$tour',
+            nRating: { $count: {} },
+            avgRating: { $avg: '$rating' }
+          }
+        }
+      ])
+      .toArray()
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+export const reviewModel = { REVIEW_COLLECTION_NAME, REVIEW_COLLECTION_SCHEMA, createNew, getDetail, getAll, updateDetail, deleteDetail, calcAverageRatings }

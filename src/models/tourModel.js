@@ -147,4 +147,33 @@ const updateDetail = async (tourId, reqBody) => {
   }
 }
 
-export const tourModel = { TOUR_COLLECTION_NAME, TOUR_COLLECTION_SCHEMA, createNew, getDetail, getAll, deleteDetail, updateDetail }
+const calcAverageRatings = async (stats, tourId) => {
+  try {
+    if (stats.length > 0) {
+      return await GET_DB()
+        .collection(TOUR_COLLECTION_NAME)
+        .findOneAndUpdate(
+          { _id: stats[0]._id },
+          {
+            $set: {
+              ratingsQuantity: stats[0].nRating,
+              ratingsAverage: stats[0].avgRating
+            }
+          }
+        )
+    } else {
+      return await GET_DB()
+        .collection(TOUR_COLLECTION_NAME)
+        .findOneAndUpdate(
+          { _id: tourId },
+          {
+            $set: { ratingsQuantity: 0, ratingsAverage: 3 }
+          }
+        )
+    }
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+export const tourModel = { TOUR_COLLECTION_NAME, TOUR_COLLECTION_SCHEMA, createNew, getDetail, getAll, deleteDetail, updateDetail, calcAverageRatings }

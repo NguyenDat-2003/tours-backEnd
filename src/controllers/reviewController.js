@@ -40,7 +40,7 @@ const updateDetail = async (req, res, next) => {
 const deleteDetail = async (req, res, next) => {
   try {
     const review = await reviewService.deleteDetail(req.params.id)
-    return res.status(StatusCodes.CREATED).json(review)
+    return res.status(StatusCodes.OK).json(review)
   } catch (error) {
     next(error)
   }

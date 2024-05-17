@@ -2,6 +2,7 @@
 import { StatusCodes } from 'http-status-codes'
 
 import { reviewModel } from '~/models/reviewModel'
+import { tourModel } from '~/models/tourModel'
 import ApiError from '~/utils/ApiError'
 
 const createNew = async (req) => {
@@ -11,6 +12,12 @@ const createNew = async (req) => {
 
     const createdReview = await reviewModel.createNew(req.body)
     const getNewReview = await reviewModel.getDetail(createdReview.insertedId)
+
+    if (getNewReview) {
+      const stats = await reviewModel.calcAverageRatings()
+      await tourModel.calcAverageRatings(stats, getNewReview.tour)
+    }
+
     return getNewReview
   } catch (error) {
     throw error
@@ -58,7 +65,13 @@ const deleteDetail = async (reviewId) => {
     if (!review) {
       throw new ApiError(StatusCodes.NOT_FOUND, 'review not found')
     }
-    return review
+
+    if (review) {
+      const stats = await reviewModel.calcAverageRatings()
+      await tourModel.calcAverageRatings(stats, review.tour)
+    }
+
+    return { delete: 'Delete Successfully' }
   } catch (error) {
     throw error
   }
