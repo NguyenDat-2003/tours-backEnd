@@ -55,9 +55,9 @@ const createSignToken = (user, statusCode, res) => {
 
   res.cookie('jwt', token, cookieOptions)
 
-  user.password = undefined
+  const { password, ...userInfo } = user
 
-  return res.status(statusCode).json({ status: 'success', token, user })
+  return res.status(statusCode).json({ status: 'success', token, userInfo })
 }
 
 const signToken = (id) => {
@@ -83,6 +83,10 @@ const login = async (req, res, next) => {
   } catch (error) {
     next(error)
   }
+}
+
+const logout = (req, res) => {
+  res.clearCookie('jwt').status(StatusCodes.OK).json({ status: 'Logout Successful' })
 }
 
 const forgotPassword = async (req, res, next) => {
@@ -138,4 +142,4 @@ const updatePassword = async (req, res, next) => {
   }
 }
 
-export const authController = { signUp, login, protect, restrictTo, forgotPassword, resetPassword, updatePassword }
+export const authController = { signUp, login, protect, restrictTo, forgotPassword, resetPassword, updatePassword, logout }

@@ -11,11 +11,12 @@ const createNew = async (req, res, next) => {
       .email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } })
       .message('Invalid Email'),
     password: Joi.string().required().min(8),
-    passwordConfirm: Joi.any().valid(Joi.ref('password')).required().messages({ 'any.only': '{{#label}} does not match' })
+    passwordConfirm: Joi.any().valid(Joi.ref('password')).required().messages({ 'any.only': 'Password Confirm does not match' })
   })
 
   try {
-    await correctCondition.validateAsync(req.body, { abortEarly: false, allowUnknown: true })
+    // await correctCondition.validateAsync(req.body, { abortEarly: false, allowUnknown: true })
+    await correctCondition.validateAsync(req.body, { allowUnknown: true })
     next()
   } catch (error) {
     next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, error.message))

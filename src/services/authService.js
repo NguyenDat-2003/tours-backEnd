@@ -31,13 +31,13 @@ const login = async (reqBody) => {
 
     const user = await userModel.login(reqBody)
     if (!user) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'Incorrect email or password!')
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Incorrect email!')
     }
     const matchUser = await bcrypt.compare(password, user.password)
     if (matchUser) {
       return user
     } else {
-      throw new ApiError(StatusCodes.BAD_REQUEST, 'Incorrect email or password!')
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Incorrect password!')
     }
   } catch (error) {
     throw error
