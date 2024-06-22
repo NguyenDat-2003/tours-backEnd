@@ -1,17 +1,18 @@
 import express from 'express'
-import { authController } from '~/controllers/authcontroller'
 import { reviewController } from '~/controllers/reviewController'
 import { reviewValidation } from '~/validations/reviewValidation'
+import { verifyToken } from '~/middlewares/verifyToken'
+import { restrictTo } from '~/middlewares/restrictTo'
 
 const Router = express.Router({ mergeParams: true })
 
-Router.use(authController.protect)
+Router.use(verifyToken)
 
-Router.route('/').get(reviewController.getAllReviews).post(authController.restrictTo('user'), reviewValidation.createNew, reviewController.createReview)
+Router.route('/').get(reviewController.getAllReviews).post(restrictTo('user'), reviewValidation.createNew, reviewController.createReview)
 
 Router.route('/:id')
   .get(reviewController.getReview)
-  .put(authController.restrictTo('user', 'admin'), reviewValidation.update, reviewController.updateDetail)
-  .delete(authController.restrictTo('user', 'admin'), reviewController.deleteDetail)
+  .put(restrictTo('user', 'admin'), reviewValidation.update, reviewController.updateDetail)
+  .delete(restrictTo('user', 'admin'), reviewController.deleteDetail)
 
 export const reviewRoute = Router
