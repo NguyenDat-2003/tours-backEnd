@@ -1,46 +1,11 @@
 import { StatusCodes } from 'http-status-codes'
-import { promisify } from 'util'
-import jwt from 'jsonwebtoken'
 import { env } from '~/config/environment'
+import jwt from 'jsonwebtoken'
 
 import { authService } from '~/services/authService'
 import ApiError from '~/utils/ApiError'
-import { userModel } from '~/models/userModel'
+// import { userModel } from '~/models/userModel'
 import { sendEmail } from '~/utils/email'
-
-const protect = async (req, res, next) => {
-  // 1) Getting token and check of it's there
-  let token
-  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-    token = req.headers.authorization.split(' ')[1]
-  }
-
-  if (!token) {
-    return next(new ApiError(StatusCodes.UNAUTHORIZED, 'You are not logged in! Please log in to get access.'))
-  }
-
-  // 2) Verification token
-  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET)
-
-  // 3) Check if user still exists
-  const currentUser = await userModel.getDetail(decoded.id)
-  if (!currentUser) {
-    return next(new ApiError(StatusCodes.UNAUTHORIZED, 'The user belonging to this token does no longer exist.'))
-  }
-
-  req.user = currentUser
-  next()
-}
-
-const restrictTo = (...roles) => {
-  return (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
-      return next(new ApiError(StatusCodes.FORBIDDEN, 'You do not have permission to perform this action'))
-    }
-
-    next()
-  }
-}
 
 const createSignToken = (user, statusCode, res) => {
   const token = signToken(user._id)
@@ -53,11 +18,11 @@ const createSignToken = (user, statusCode, res) => {
   }
   if (env.BUILD_MODE === 'production') cookieOptions.secure = true
 
-  res.cookie('jwt', token, cookieOptions)
-
   const { password, ...userInfo } = user
 
-  return res.status(statusCode).json({ status: 'success', token, userInfo })
+  res.cookie('token', token, cookieOptions)
+
+  return res.status(statusCode).json(userInfo)
 }
 
 const signToken = (id) => {
@@ -86,7 +51,7 @@ const login = async (req, res, next) => {
 }
 
 const logout = (req, res) => {
-  res.clearCookie('jwt').status(StatusCodes.OK).json({ status: 'Logout Successful' })
+  res.clearCookie('token').status(StatusCodes.OK).json({ status: 'Logout Successful' })
 }
 
 const forgotPassword = async (req, res, next) => {
@@ -142,4 +107,4 @@ const updatePassword = async (req, res, next) => {
   }
 }
 
-export const authController = { signUp, login, protect, restrictTo, forgotPassword, resetPassword, updatePassword, logout }
+export const authController = { signUp, login, forgotPassword, resetPassword, updatePassword, logout }

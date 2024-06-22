@@ -2,6 +2,7 @@ import express from 'express'
 import exitHook from 'async-exit-hook'
 import helmet from 'helmet'
 import cors from 'cors'
+import cookieParser from 'cookie-parser'
 
 import { CONNECT_DB, CLOSE_DB } from '~/config/mongodb'
 import { env } from '~/config/environment'
@@ -13,6 +14,7 @@ const START_SERVER = () => {
   const app = express()
   app.use(cors(corsOptions))
   app.use(helmet())
+  app.use(cookieParser())
 
   app.use(express.json({ limit: '10kb' }))
 
