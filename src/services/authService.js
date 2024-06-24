@@ -83,22 +83,17 @@ const resetPassword = async (req, hashedToken) => {
   return await userModel.updateDetail(user._id, newUser)
 }
 
-const updatePassword = async (passwordCurrent, password, passwordConfirm, userId) => {
+const updatePassword = async (currentPassword, newPassword, confirmPassword, currentUser) => {
   // 1) Get user from collection
-  const user = await userModel.getDetail(userId)
+  const user = await userModel.getDetail(currentUser._id)
 
   // 2) Check if POSTed current password is correct
-  if (!(await bcrypt.compare(passwordCurrent, user.password))) {
+  if (!(await bcrypt.compare(currentPassword, currentUser.password))) {
     throw new ApiError(StatusCodes.UNAUTHORIZED, 'Your current password is wrong.')
   }
-
-  // 3) If so, update password
-  user.password = await bcrypt.hash(password, 12)
-  delete user.passwordConfirm
+  // // 3) If so, update password
+  user.password = await bcrypt.hash(newPassword, 12)
   await userModel.updateDetail(user._id, user)
-
-  //-- không sử dụng findByIdAndUpdate cho bất kì điều gì liên quan đếnm mật khẩu
-  // User.findByIdAndUpdate will NOT work as intended!
 
   // 4) Log user in, send JWT
 

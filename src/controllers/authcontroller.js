@@ -98,9 +98,9 @@ const resetPassword = async (req, res, next) => {
 
 const updatePassword = async (req, res, next) => {
   try {
-    const { passwordCurrent, password, passwordConfirm } = req.body
+    const { currentPassword, newPassword, confirmPassword } = req.body
 
-    const user = await authService.updatePassword(passwordCurrent, password, passwordConfirm, req.user._id)
+    const user = await authService.updatePassword(currentPassword, newPassword, confirmPassword, req.user)
     createSignToken(user, StatusCodes.OK, res)
   } catch (error) {
     next(error)
