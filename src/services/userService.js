@@ -81,8 +81,7 @@ const updateMe = async (reqUserId, reqBody) => {
   try {
     const filteredBody = filterObj(reqBody, 'userName', 'email', 'avatar')
 
-    await userModel.updateMe(reqUserId, filteredBody)
-    return { update: 'Update Successfully!' }
+    return await userModel.updateMe(reqUserId, filteredBody)
   } catch (error) {
     throw error
   }
