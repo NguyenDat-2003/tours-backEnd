@@ -8,7 +8,7 @@ const Router = express.Router({ mergeParams: true })
 
 Router.use(verifyToken)
 
-Router.route('/').get(reviewController.getAllReviews).post(restrictTo('user'), reviewValidation.createNew, reviewController.createReview)
+Router.route('/').get(reviewController.getAllReviews).post(restrictTo('admin', 'user'), reviewValidation.createNew, reviewController.createReview)
 
 Router.route('/:id')
   .get(reviewController.getReview)
