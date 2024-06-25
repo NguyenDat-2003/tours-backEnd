@@ -116,7 +116,18 @@ const getDetail = async (tourId) => {
             from: reviewModel.REVIEW_COLLECTION_NAME,
             localField: '_id',
             foreignField: 'tour',
-            as: 'reviews'
+            pipeline: [
+              {
+                $lookup: {
+                  from: userModel.USER_COLLECTION_NAME,
+                  localField: 'user',
+                  foreignField: '_id',
+                  as: 'reviews_user'
+                }
+              },
+              { $unset: ['reviews_user.password'] }
+            ],
+            as: 'reviews_tours'
           }
         },
         { $unset: ['guides.password'] }
