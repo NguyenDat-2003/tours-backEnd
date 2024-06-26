@@ -38,6 +38,7 @@ const TOUR_COLLECTION_SCHEMA = Joi.object({
     })
   ),
   guides: Joi.array().items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)).default([]),
+  reviewIds: Joi.array().items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)).default([]),
 
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(null),
@@ -56,8 +57,9 @@ const createNew = async (data) => {
     const validData = await validateBeforeCreate(data)
     // console.log(validData.locations)
 
-    if (validData.guides) {
+    if (validData.guides || validData.reviewIds) {
       validData.guides = validData.guides.map((guide) => new ObjectId(guide))
+      validData.reviewIds = validData.reviewIds.map((review) => new ObjectId(review))
     }
 
     return await GET_DB().collection(TOUR_COLLECTION_NAME).insertOne(validData)
@@ -108,29 +110,41 @@ const getDetail = async (tourId) => {
             from: userModel.USER_COLLECTION_NAME,
             localField: 'guides',
             foreignField: '_id',
-            as: 'guides'
+            as: 'guide_tours',
+            pipeline: [
+              {
+                $project: {
+                  password: 0
+                }
+              }
+            ]
           }
         },
         {
           $lookup: {
             from: reviewModel.REVIEW_COLLECTION_NAME,
-            localField: '_id',
-            foreignField: 'tour',
+            localField: 'reviewIds',
+            foreignField: '_id',
+            as: 'reviews',
             pipeline: [
               {
                 $lookup: {
                   from: userModel.USER_COLLECTION_NAME,
                   localField: 'user',
                   foreignField: '_id',
-                  as: 'reviews_user'
+                  as: 'info_user',
+                  pipeline: [
+                    {
+                      $project: {
+                        password: 0
+                      }
+                    }
+                  ]
                 }
-              },
-              { $unset: ['reviews_user.password'] }
-            ],
-            as: 'reviews_tours'
+              }
+            ]
           }
-        },
-        { $unset: ['guides.password'] }
+        }
       ])
       .toArray()
   } catch (error) {
@@ -148,11 +162,16 @@ const deleteDetail = async (tourId) => {
   }
 }
 
-const updateDetail = async (tourId, reqBody) => {
+const updateDetail = async (tourId, updateData) => {
   try {
+    if (updateData.guides) {
+      updateData.guides = updateData.guides.map((guide) => new ObjectId(guide))
+    } else if (updateData.reviewIds) {
+      updateData.reviewIds = updateData.reviewIds.map((review) => new ObjectId(review))
+    }
     return await GET_DB()
       .collection(TOUR_COLLECTION_NAME)
-      .findOneAndUpdate({ _id: new ObjectId(tourId) }, { $set: reqBody }, { returnDocument: 'after' })
+      .findOneAndUpdate({ _id: new ObjectId(tourId) }, { $set: updateData }, { returnDocument: 'after' })
   } catch (error) {
     throw new Error(error)
   }
@@ -187,4 +206,39 @@ const calcAverageRatings = async (stats, tourId) => {
   }
 }
 
-export const tourModel = { TOUR_COLLECTION_NAME, TOUR_COLLECTION_SCHEMA, createNew, getDetail, getAll, deleteDetail, updateDetail, calcAverageRatings }
+const pushReviewIds = async (review) => {
+  try {
+    const result = await GET_DB()
+      .collection(TOUR_COLLECTION_NAME)
+      .findOneAndUpdate({ _id: new ObjectId(review[0].tour) }, { $push: { reviewIds: new ObjectId(review[0]._id) } }, { returnDocument: 'after' })
+
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const pullReviewIds = async (review) => {
+  try {
+    const result = await GET_DB()
+      .collection(TOUR_COLLECTION_NAME)
+      .findOneAndUpdate({ _id: new ObjectId(review.tour) }, { $pull: { reviewIds: new ObjectId(review._id) } }, { returnDocument: 'after' })
+
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+export const tourModel = {
+  TOUR_COLLECTION_NAME,
+  TOUR_COLLECTION_SCHEMA,
+  createNew,
+  getDetail,
+  getAll,
+  deleteDetail,
+  updateDetail,
+  calcAverageRatings,
+  pushReviewIds,
+  pullReviewIds
+}
