@@ -1,5 +1,6 @@
 /* eslint-disable no-useless-catch */
 import { StatusCodes } from 'http-status-codes'
+import { reviewModel } from '~/models/reviewModel'
 import { tourModel } from '~/models/tourModel'
 import ApiError from '~/utils/ApiError'
 import slugify from '~/utils/slugify'
@@ -55,6 +56,8 @@ const deleteDetail = async (tourId) => {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Tour not found!')
     }
 
+    await reviewModel.deleteManyById(tourId)
+
     return { delete: 'Delete Successfully!' }
   } catch (error) {
     throw error
@@ -63,8 +66,11 @@ const deleteDetail = async (tourId) => {
 
 const updateDetail = async (tourId, reqBody) => {
   try {
-    // Gọi đến tầng model để xử lý lưu bản ghi vào database sau đó trả data về cho controller
-    const Tour = await tourModel.updateDetail(tourId, reqBody)
+    const updateData = {
+      ...reqBody,
+      updatedAt: Date.now()
+    }
+    const Tour = await tourModel.updateDetail(tourId, updateData)
     if (!Tour) {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Tour not found!')
     }

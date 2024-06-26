@@ -16,6 +16,7 @@ const createNew = async (req) => {
     if (getNewReview) {
       const stats = await reviewModel.calcAverageRatings()
       await tourModel.calcAverageRatings(stats, getNewReview.tour)
+      await tourModel.pushReviewIds(getNewReview)
     }
 
     return getNewReview
@@ -69,6 +70,7 @@ const deleteDetail = async (reviewId) => {
     if (review) {
       const stats = await reviewModel.calcAverageRatings()
       await tourModel.calcAverageRatings(stats, review.tour)
+      await tourModel.pullReviewIds(review)
     }
 
     return { delete: 'Delete Successfully' }

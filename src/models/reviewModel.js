@@ -87,6 +87,16 @@ const deleteDetail = async (reviewId) => {
   }
 }
 
+const deleteManyById = async (tourId) => {
+  try {
+    return await GET_DB()
+      .collection(REVIEW_COLLECTION_NAME)
+      .deleteMany({ tour: new ObjectId(tourId) })
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 const calcAverageRatings = async () => {
   try {
     return await GET_DB()
@@ -106,4 +116,4 @@ const calcAverageRatings = async () => {
   }
 }
 
-export const reviewModel = { REVIEW_COLLECTION_NAME, REVIEW_COLLECTION_SCHEMA, createNew, getDetail, getAll, updateDetail, deleteDetail, calcAverageRatings }
+export const reviewModel = { REVIEW_COLLECTION_NAME, REVIEW_COLLECTION_SCHEMA, createNew, getDetail, getAll, updateDetail, deleteDetail, deleteManyById, calcAverageRatings }
